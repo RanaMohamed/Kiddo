@@ -8,12 +8,15 @@ require('./db');
 
 const { port } = require('./config/config');
 
+const kidRouter = require('./routes/kid');
+
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routers
+app.use(['/kid', '/kids'], kidRouter);
 
 app.use(function (req, res, next) {
 	res.status(404).send("Sorry can't find that!");
