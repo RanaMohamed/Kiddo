@@ -4,7 +4,7 @@ const router = express.Router();
 // const { body } = require("express-validator");
 const authenticationMiddleware = require("../middlewares/authentication");
 const asyncRouterWrapper = require("../middlewares/asyncRouterWrapper");
-const Comment = require("../models/Comments");
+const Comment = require("../models/Post");
 const Post = require("../models/Post");
 
 //Add Comment
@@ -42,7 +42,7 @@ router.get(
     const postComments = await Post.findById({ _id: req.params.id })
       .select("comments")
       .populate({
-        path: "Comments",
+        path: "comments",
         select: "text",
       });
 
