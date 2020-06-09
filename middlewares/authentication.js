@@ -1,15 +1,23 @@
-const Kid = require("../models/kid");
+const Kid = require('../models/kid');
+const Supporter = require('../models/supporter');
+const Buyer = require('../models/buyer');
 
 module.exports = async (req, res, next) => {
-  try {
-    const autherization = req.headers.autherization;
-    if (!autherization)
-      throw new Error("Autherzation required token not provide");
-    req.kid = await Kid.getKidFromToken(autherization);
-    if (!req.kid) throw new Error("Autherzation required");
-    next();
-  } catch (err) {
-    err.statusCode = 401;
-    next(err);
-  }
+	try {
+		let user;
+		if (req.headers.authorization)
+			user = await Kid.getKidFromToken(req.headers.authorization);
+
+		if (!user)
+			user = await Supporter.getSupporterFromToken(req.headers.authorization);
+
+		if (!user) user = await Buyer.getBuyerFromToken(req.headers.authorization);
+
+		if (!user) return res.status(401).json({ message: 'Unauthorized' });
+
+		req.user = user;
+		next();
+	} catch (err) {
+		next(err);
+	}
 };
