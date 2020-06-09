@@ -21,9 +21,11 @@ router.post("/:id", authenticationMiddleware, async (req, res) => {
 });
 
 // EDIT COMMENT
-router.patch("/:postId/:id", async (req, res) => {
+router.patch("/:id/:postId", async (req, res) => {
   const post = await Post.findById({ _id: req.params.postId });
+
   const comment = post.comments.find((comment) => comment == req.params.id);
+
   if (!comment) return res.send("not found");
   Object.keys(req.body).forEach((key) => {
     comment[key] = req.body[key];
