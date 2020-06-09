@@ -4,7 +4,7 @@ const router = express.Router();
 // const { body } = require("express-validator");
 const authenticationMiddleware = require("../middlewares/authentication");
 const asyncRouterWrapper = require("../middlewares/asyncRouterWrapper");
-const Comment = require("../models/Post");
+const Comment = require("../models/comment");
 const Post = require("../models/Post");
 
 //Add Comment
@@ -23,17 +23,17 @@ router.post(
   })
 );
 
-//EDIT COMMENT
-// router.patch(
-//   "/:id",
-//   asyncRouterWrapper(async (req, res) => {
-//     const comment = await Comment.findById({ _id: req.params.id });
-//     // comment.text = req.body;
-//     console.log(comment);
-//     // await comment.save();
-//     // res.status(200).json({ comment, message: "Comment edited successfully" });
-//   })
-// );
+// EDIT COMMENT
+router.patch(
+  "/:id",
+  asyncRouterWrapper(async (req, res) => {
+    const comment = await Comment.findById({ _id: req.params.id });
+    // comment.text = req.body;
+    console.log(comment);
+    // await comment.save();
+    // res.status(200).json({ comment, message: "Comment edited successfully" });
+  })
+);
 
 //get post comments
 router.get(
@@ -42,7 +42,7 @@ router.get(
     const postComments = await Post.findById({ _id: req.params.id })
       .select("comments")
       .populate({
-        path: "comments",
+        path: "Comment",
         select: "text",
       });
 
