@@ -1,55 +1,60 @@
 const mongoose = require("mongoose");
 const _ = require("lodash");
+
+//COMMENT Schema
 const commentSchema = new mongoose.Schema({
   text: String,
   refOn: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-    refPath: "onModel"
+    refPath: "onModel",
   },
   onModel: {
     type: String,
-    enum: ["Kid", "Buyer", "Supporter"]
-  }
+    enum: ["Kid", "Buyer", "Supporter"],
+  },
 });
+
+//LIKE Schema
 const likeSchema = new mongoose.Schema({
   refOn: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-    refPath: "onModel"
+    refPath: "onModel",
   },
   onModel: {
     type: String,
-    enum: ["Kid", "Buyer", "Supporter"]
-  }
+    enum: ["Kid", "Buyer", "Supporter"],
+  },
 });
+
 const schema = new mongoose.Schema(
   {
     title: {
       type: String,
       required: [true, "Post title is required"],
-      index: true
+      index: true,
     },
     body: {
       type: String,
-      required: [true, "Post body is required"]
+      required: [true, "Post body is required"],
     },
     attachedFiles: {
-      type: [String]
+      type: [String],
     },
     autherKid: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Kid",
-      required: true
+      required: true,
     },
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "likeSchema" }],
-    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: "commentSchema" }]
+    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: "commentSchema" }],
   },
   {
     timestamps: true,
     toJSON: {
-      transform: (doc, ret) => _.omit(ret, ["__v", "createdAt"])
-    }
+      transform: (doc, ret) => _.omit(ret, ["__v", "createdAt"]),
+    },
   }
 );
 mongoose.model("Comment", commentSchema);
