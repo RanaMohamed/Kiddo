@@ -13,7 +13,7 @@ router.post("/:id", authenticationMiddleware, async (req, res) => {
 
   const { text } = req.body;
 
-  const comment = new Comment({ text, autherKid: req.user._id });
+  const comment = new Comment({ text, user: req.user._id });
   await comment.save();
   post.comments.push(comment._id);
   await post.save();
