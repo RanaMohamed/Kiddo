@@ -1,16 +1,27 @@
-const mongoose = require("mongoose");
-//COMMENT Schema
-const commentSchema = new mongoose.Schema({
-  text: String,
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-  },
-  onModel: {
-    type: String,
-    enum: ["Kid", "Buyer", "Supporter"],
-  },
-});
+const mongoose = require('mongoose');
+const _ = require('lodash');
 
-const Comment = mongoose.model("Comment", commentSchema);
+//COMMENT Schema
+const commentSchema = new mongoose.Schema(
+	{
+		text: String,
+		user: {
+			type: mongoose.Schema.Types.ObjectId,
+			required: true,
+			refPath: 'userModel',
+		},
+		userModel: {
+			type: String,
+			enum: ['Kid', 'Buyer', 'Supporter'],
+		},
+	},
+	{
+		timestamps: true,
+		toJSON: {
+			transform: (doc, ret) => _.omit(ret, ['__v', 'createdAt', 'userModel']),
+		},
+	}
+);
+
+const Comment = mongoose.model('Comment', commentSchema);
 module.exports = Comment;

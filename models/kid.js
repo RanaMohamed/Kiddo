@@ -37,7 +37,8 @@ const schema = new mongoose.Schema(
 	{
 		timestamps: true,
 		toJSON: {
-			transform: (doc, ret) => _.omit(ret, ['__v', 'password', 'createdAt']),
+			transform: (doc, ret) =>
+				_.omit(ret, ['__v', 'password', 'createdAt', 'parentEmail']),
 		},
 	}
 );
