@@ -28,7 +28,7 @@ router.post('/:id', authenticationMiddleware, async (req, res) => {
 // EDIT COMMENT
 router.patch(
   "/:id",
-  ,async (req, res) => {
+  async (req, res) => {
     const comment = await Comment.findById({ _id: req.params.id });
     // comment.text = req.body;
     console.log(comment);
