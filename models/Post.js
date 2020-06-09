@@ -28,6 +28,7 @@ const likeSchema = new mongoose.Schema({
   },
 });
 
+//POST Schema
 const schema = new mongoose.Schema(
   {
     title: {
@@ -57,7 +58,9 @@ const schema = new mongoose.Schema(
     },
   }
 );
-mongoose.model("Comment", commentSchema);
-mongoose.model("Like", likeSchema);
+const Comment = mongoose.model("Comment", commentSchema);
+const Likes = mongoose.model("Like", likeSchema);
 const Post = mongoose.model("Post", schema);
+module.exports = Comment;
+module.exports = Likes;
 module.exports = Post;
