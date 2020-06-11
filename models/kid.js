@@ -33,6 +33,7 @@ const schema = new mongoose.Schema(
 			type: Date,
 			required: [true, 'Date of Birth is required'],
 		},
+		categories: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Category' }],
 	},
 	{
 		timestamps: true,
