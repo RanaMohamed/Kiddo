@@ -3,6 +3,7 @@ const router = express.Router();
 const Post = require('../models/Post');
 const authenticationMiddleware = require('../middlewares/authentication');
 const uploadMiddleware = require('../middlewares/upload');
+const Like = require('../models/like');
 
 //Add Post
 router.post(
@@ -95,6 +96,43 @@ router.patch(
 router.delete('/:id', authenticationMiddleware, async (req, res) => {
 	await Post.deleteOne({ _id: req.params.id });
 	res.status(200).json({ message: 'Post deleted successfully' });
+});
+
+router.post('/like/:id', authenticationMiddleware, async (req, res) => {
+	const post = await Post.findById(req.params.id).populate({
+		path: 'likes',
+		populate: { path: 'user' },
+	});
+
+	const isLiked = post.likes.some(
+		(like) => like.user._id.toString() === req.user._id.toString()
+	);
+	if (isLiked) return res.json({ message: 'You already like this post' });
+
+	await Like.create({
+		postId: req.params.id,
+		user: req.user._id,
+		userModel: req.user.type,
+	});
+
+	res.json({ message: 'Post Liked Successfully' });
+});
+
+router.post('/unlike/:id', authenticationMiddleware, async (req, res) => {
+	const post = await Post.findById(req.params.id).populate({
+		path: 'likes',
+		populate: { path: 'user' },
+	});
+
+	const like = post.likes.find(
+		(like) => like.user._id.toString() === req.user._id.toString()
+	);
+
+	if (!like) return res.json({ message: "You didn't like this post" });
+
+	await Like.deleteOne({ _id: like._id });
+
+	res.json({ message: 'Post Unliked Successfully' });
 });
 
 module.exports = router;

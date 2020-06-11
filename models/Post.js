@@ -1,27 +1,6 @@
 const mongoose = require('mongoose');
 const _ = require('lodash');
 
-//LIKE Schema
-const likeSchema = new mongoose.Schema(
-	{
-		user: {
-			type: mongoose.Schema.Types.ObjectId,
-			required: true,
-			refPath: 'userModel',
-		},
-		userModel: {
-			type: String,
-			enum: ['Kid', 'Buyer', 'Supporter'],
-		},
-	},
-	{
-		timestamps: true,
-		toJSON: {
-			transform: (doc, ret) => _.omit(ret, ['__v', 'createdAt', 'userModel']),
-		},
-	}
-);
-
 //POST Schema
 const schema = new mongoose.Schema(
 	{
@@ -42,19 +21,24 @@ const schema = new mongoose.Schema(
 			ref: 'Kid',
 			required: true,
 		},
-		likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Like' }],
 		comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
 	},
 	{
 		timestamps: true,
 		toJSON: {
 			transform: (doc, ret) => _.omit(ret, ['__v', 'createdAt']),
+			virtuals: true,
 		},
 	}
 );
 
-const Likes = mongoose.model('Like', likeSchema);
+schema.virtual('likes', {
+	ref: 'Like',
+	localField: '_id',
+	foreignField: 'postId',
+	justOne: false,
+});
+
 const Post = mongoose.model('Post', schema);
 
-module.exports = Likes;
 module.exports = Post;
