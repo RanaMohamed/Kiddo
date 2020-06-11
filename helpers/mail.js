@@ -1,4 +1,5 @@
 const nodemailer = require("nodemailer");
+
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 module.exports = nodemailer.createTransport({
