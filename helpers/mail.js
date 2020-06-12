@@ -1,13 +1,13 @@
-const nodemailer = require("nodemailer");
+const nodemailer = require('nodemailer');
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 module.exports = nodemailer.createTransport({
-  service: "gmail",
-  port: process.env.mailport,
-  secureConnection: true,
-  auth: { user: process.env.user, pass: process.env.pass },
-  tls: {
-    secureProtocol: "TLSv1_method",
-  },
+	service: 'gmail',
+	port: process.env.MAIL_PORT,
+	secureConnection: true,
+	auth: { user: process.env.USER, pass: process.env.PASS },
+	tls: {
+		secureProtocol: 'TLSv1_method',
+	},
 });

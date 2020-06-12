@@ -4,7 +4,7 @@ const _ = require('lodash');
 //LIKE Schema
 const likeSchema = new mongoose.Schema(
 	{
-		postId: {
+		post: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'Post',
 		},
