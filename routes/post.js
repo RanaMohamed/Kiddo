@@ -12,7 +12,13 @@ router.post(
   uploadMiddleware.array("uploadedFiles", 10),
   async (req, res) => {
     const { title, body } = req.body;
-    const post = new Post({ title, body, likes: [], comments: [] });
+    const post = new Post({
+      title,
+      body,
+      likes: [],
+      comments: [],
+      isApproved: false
+    });
     post.autherKid = req.user._id;
     if (req.files) {
       req.files.forEach(f => {
@@ -24,10 +30,24 @@ router.post(
   }
 );
 
-//get latest Posts
-router.get("/", async (req, res) => {
-  const totalNumOfPosts = await Post.countDocuments();
-  const Posts = await Post.find({})
+//get latest approved Posts
+router.get("/approved", async (req, res) => {
+  const totalNumOfPosts = await Post.countDocuments({ isApproved: true });
+  const Posts = await Post.find({ isApproved: true })
+    .sort({ _id: -1 })
+    .skip((parseInt(req.query.pageNum) - 1) * parseInt(req.query.size))
+    .limit(parseInt(req.query.size))
+    .populate({
+      path: "autherKid",
+      select: "_id username"
+    });
+  res.send({ Posts, totalNumOfPosts });
+});
+
+//get latest unApproved Posts
+router.get("/unapproved", async (req, res) => {
+  const totalNumOfPosts = await Post.countDocuments({ isApproved: false });
+  const Posts = await Post.find({ isApproved: false })
     .sort({ _id: -1 })
     .skip((parseInt(req.query.pageNum) - 1) * parseInt(req.query.size))
     .limit(parseInt(req.query.size))
