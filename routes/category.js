@@ -10,12 +10,14 @@ router.get("/", async (req, res) => {
 
 router.post("/", uploadMiddleware.single("image"), async (req, res) => {
   const { title, description } = req.body;
-  const image = req.file.filename;
   const category = new Category({
     title,
-    description,
-    image,
+    description
   });
+  if (req.file) {
+    const image = req.file.filename;
+    category.image = image;
+  }
   await category.save();
   res.status(201).json({ category, message: "category added successfully" });
 });
