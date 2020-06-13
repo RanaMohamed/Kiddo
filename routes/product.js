@@ -94,14 +94,16 @@ router.get("/", async (req, res, next) => {
   const TypeOfSearch = req.query.type;
   const valueOfSearch = req.query.value;
   if (TypeOfSearch === "productname") {
-    const post = await Post.findOne({ $text: { $search: valueOfSearch } });
-    if (!post)
-      return res.status(400).json({ message: "No Product with such name" });
-    const product = await Product.findOne({ post: post._id }).populate({
+    let posts = await Post.find({ $text: { $search: valueOfSearch } });
+    posts = posts.map(p => p._id);
+    if (posts.length === 0)
+      return res.status(400).json({ message: "No Products with such name" });
+    const totalNumOfProducts = await Product.countDocuments({ post: posts });
+    const product = await Product.find({ post: posts }).populate({
       path: "post",
       select: "_id title body autherKid attachedFiles"
     });
-    res.send({ product, totalNumOfProducts: 1 });
+    res.send({ product, totalNumOfProducts });
   } else if (TypeOfSearch === "category") {
     // search by category
   } else {

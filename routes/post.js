@@ -9,8 +9,8 @@ const Product = require("../models/product");
 //Add Post
 router.post(
   "/",
-  authenticationMiddleware,
-  uploadMiddleware.array("uploadedFiles", 10),
+  //authenticationMiddleware,
+  //uploadMiddleware.array("uploadedFiles", 10),
   async (req, res) => {
     const { title, body, isProduct, price } = req.body;
     const post = new Post({
@@ -20,7 +20,8 @@ router.post(
       comments: [],
       isApproved: false
     });
-    post.autherKid = req.user._id;
+    //post.autherKid = req.user._id;
+    post.autherKid = "5ede83ab8a74fa441461bb56";
     if (req.files) {
       req.files.forEach(f => {
         post.attachedFiles.push(f.path);
