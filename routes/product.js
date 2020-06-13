@@ -5,7 +5,7 @@ const { body } = require("express-validator");
 
 const Product = require("../models/product");
 const Feedback = require("../models/feedback");
-const Post = require("../models/Post");
+const Post = require("../models/post");
 
 const validateRequest = require("../middlewares/validateRequest");
 const authenticate = require("../middlewares/authentication");
@@ -16,8 +16,9 @@ const transport = require("../helpers/mail");
 //Buy product
 router.post("/buy/:id", authenticate, authorize("Buyer"), async (req, res) => {
   // Todo: Check Payment Info
-  const { payment } = req.body;
-  if (!payment) {
+  // pi_1GtUB8GBToZL71CcCsHNlbqw;
+  const { paymentIntentId } = req.body;
+  if (!paymentIntentId) {
     res.status(402).json({ message: "Failed to buy product" });
   }
   const product = await Product.findById(req.params.id);
@@ -89,8 +90,8 @@ router.get("/:id", async (req, res) => {
   res.status(201).json({ product, message: "Product retrevied successfully" });
 });
 
-//Get latest Products or By search useing (product name - and category)
-router.get("/", async (req, res, next) => {
+//Get latest Products or By search using (product name - and category)
+router.get("/", async (req, res) => {
   const TypeOfSearch = req.query.type;
   const valueOfSearch = req.query.value;
   if (TypeOfSearch === "productname") {
@@ -101,7 +102,7 @@ router.get("/", async (req, res, next) => {
     const totalNumOfProducts = await Product.countDocuments({ post: posts });
     const product = await Product.find({ post: posts }).populate({
       path: "post",
-      select: "_id title body autherKid attachedFiles"
+      select: "_id title body authorKid attachedFiles"
     });
     res.send({ product, totalNumOfProducts });
   } else if (TypeOfSearch === "category") {
@@ -114,7 +115,7 @@ router.get("/", async (req, res, next) => {
       .limit(parseInt(req.query.size))
       .populate({
         path: "post",
-        select: "_id title body autherKid attachedFiles"
+        select: "_id title body authorKid attachedFiles"
       });
     res.send({ products, totalNumOfProducts });
   }

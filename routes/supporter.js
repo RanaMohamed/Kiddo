@@ -6,7 +6,7 @@ const { body } = require("express-validator");
 const validateRequest = require("../middlewares/validateRequest");
 const authenticate = require("../middlewares/authentication");
 const Supporter = require("../models/Supporter");
-const Post = require("../models/Post");
+const Post = require("../models/post");
 
 const { login } = require("../helpers/helper");
 
@@ -17,7 +17,7 @@ router.post("/register", async (req, res) => {
     email,
     dateOfBirth,
     experience,
-    category
+    categories
   } = req.body;
   const supporter = new Supporter({
     username,
@@ -25,7 +25,7 @@ router.post("/register", async (req, res) => {
     email,
     dateOfBirth,
     experience,
-    category
+    categories
   });
 
   await supporter.save();

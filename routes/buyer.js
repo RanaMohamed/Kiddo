@@ -19,7 +19,7 @@ router.post("/register", async (req, res) => {
     email,
     dateOfBirth,
     phone,
-    address
+    address,
   });
 
   await buyer.save();
@@ -33,12 +33,8 @@ router.post("/register", async (req, res) => {
 router.post(
   "/login",
   validateRequest([
-    body("username")
-      .exists()
-      .withMessage("Username is required"),
-    body("password")
-      .exists()
-      .withMessage("Password is required")
+    body("username").exists().withMessage("Username is required"),
+    body("password").exists().withMessage("Password is required"),
   ]),
   login(Buyer)
 );
@@ -46,7 +42,7 @@ router.post(
 //get latest Buyer’s bought products
 router.get("/products", authenticate, authorize("Buyer"), async (req, res) => {
   const totalNumOfProducts = await Product.countDocuments({
-    buyer: req.user._id
+    buyer: req.user._id,
   });
   if (totalNumOfProducts === 0)
     return res.status(400).json({ message: "You didn't buy any product" });
@@ -57,7 +53,7 @@ router.get("/products", authenticate, authorize("Buyer"), async (req, res) => {
     .limit(parseInt(req.query.size))
     .populate({
       path: "post",
-      select: "_id title body autherKid attachedFiles"
+      select: "_id title body authorKid attachedFiles",
     });
   res.send({ Products, totalNumOfProducts });
 });

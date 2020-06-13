@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const Post = require("../models/Post");
+const Post = require("../models/post");
 const authenticationMiddleware = require("../middlewares/authentication");
 const uploadMiddleware = require("../middlewares/upload");
 const Like = require("../models/like");
@@ -9,19 +9,19 @@ const Product = require("../models/product");
 //Add Post
 router.post(
   "/",
-  //authenticationMiddleware,
-  //uploadMiddleware.array("uploadedFiles", 10),
+  authenticationMiddleware,
+  uploadMiddleware.array("uploadedFiles", 10),
   async (req, res) => {
-    const { title, body, isProduct, price } = req.body;
+    const { title, body, isProduct, price, category } = req.body;
     const post = new Post({
       title,
       body,
       likes: [],
       comments: [],
-      isApproved: false
+      isApproved: false,
+      category
     });
-    //post.autherKid = req.user._id;
-    post.autherKid = "5ede83ab8a74fa441461bb56";
+    post.authorKid = req.user._id;
     if (req.files) {
       req.files.forEach(f => {
         post.attachedFiles.push(f.path);
@@ -45,7 +45,7 @@ router.get("/approved", async (req, res) => {
     .skip((parseInt(req.query.pageNum) - 1) * parseInt(req.query.size))
     .limit(parseInt(req.query.size))
     .populate({
-      path: "autherKid",
+      path: "authorKid",
       select: "_id username"
     });
   res.send({ Posts, totalNumOfPosts });
@@ -59,7 +59,7 @@ router.get("/unapproved", async (req, res) => {
     .skip((parseInt(req.query.pageNum) - 1) * parseInt(req.query.size))
     .limit(parseInt(req.query.size))
     .populate({
-      path: "autherKid",
+      path: "authorKid",
       select: "_id username"
     });
   res.send({ Posts, totalNumOfPosts });
@@ -68,7 +68,7 @@ router.get("/unapproved", async (req, res) => {
 //get Post By Id
 router.get("/:id", async (req, res) => {
   const post = await Post.findById(req.params.id).populate({
-    path: "autherKid",
+    path: "authorKid",
     select: "_id username"
   });
   res.json({ post });
@@ -77,16 +77,16 @@ router.get("/:id", async (req, res) => {
 //get Posts of specific Kid
 router.get("/kid/:kidId", authenticationMiddleware, async (req, res) => {
   const totalNumOfPosts = await Post.countDocuments({
-    autherKid: req.params.kidId
+    authorKid: req.params.kidId
   });
   const kidPosts = await Post.find({
-    autherKid: req.params.kidId
+    authorKid: req.params.kidId
   })
     .sort({ updatedAt: -1 })
     .skip((req.query.pageNum - 1) * req.query.size)
     .limit(parseInt(req.query.size))
     .populate({
-      path: "autherKid",
+      path: "authorKid",
       select: "_id username"
     });
   res.status(200).json({
