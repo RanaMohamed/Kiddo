@@ -16,6 +16,7 @@ const buyerRouter = require('./routes/buyer');
 const postRouter = require('./routes/post');
 const commentRouter = require('./routes/comment');
 const productRouter = require('./routes/product');
+const stripe = require('./helpers/stripe');
 
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -25,6 +26,16 @@ app.use(express.urlencoded({ extended: true }));
 // Routers
 app.get('/', authenticate, (req, res) => {
 	res.json(req.user);
+});
+
+app.get('/secret', async (req, res) => {
+	const intent = await stripe.paymentIntents.create({
+		amount: 10,
+		currency: 'usd',
+		// Verify your integration in this guide by including this parameter
+		metadata: { integration_check: 'accept_a_payment' },
+	});
+	res.json({ client_secret: intent.client_secret }); // ... Fetch or create the PaymentIntent
 });
 
 app.use(['/kid', '/kids'], kidRouter);

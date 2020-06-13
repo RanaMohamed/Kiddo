@@ -15,8 +15,9 @@ const transport = require('../helpers/mail');
 //Buy product
 router.post('/buy/:id', authenticate, authorize('Buyer'), async (req, res) => {
 	// Todo: Check Payment Info
-	const { payment } = req.body;
-	if (!payment) {
+	// pi_1GtUB8GBToZL71CcCsHNlbqw;
+	const { paymentIntentId } = req.body;
+	if (!paymentIntentId) {
 		res.status(402).json({ message: 'Failed to buy product' });
 	}
 	const product = await Product.findById(req.params.id);
