@@ -17,7 +17,7 @@ router.post("/register", async (req, res) => {
     email,
     dateOfBirth,
     experience,
-    category
+    categories,
   } = req.body;
   const supporter = new Supporter({
     username,
@@ -25,7 +25,7 @@ router.post("/register", async (req, res) => {
     email,
     dateOfBirth,
     experience,
-    category
+    categories,
   });
 
   await supporter.save();
@@ -39,12 +39,8 @@ router.post("/register", async (req, res) => {
 router.post(
   "/login",
   validateRequest([
-    body("username")
-      .exists()
-      .withMessage("Username is required"),
-    body("password")
-      .exists()
-      .withMessage("Password is required")
+    body("username").exists().withMessage("Username is required"),
+    body("password").exists().withMessage("Password is required"),
   ]),
   login(Supporter)
 );
