@@ -6,7 +6,6 @@ const { body } = require("express-validator");
 const Product = require("../models/product");
 const Feedback = require("../models/feedback");
 const Post = require("../models/post");
-
 const validateRequest = require("../middlewares/validateRequest");
 const authenticate = require("../middlewares/authentication");
 const authorize = require("../middlewares/authorize");
@@ -92,21 +91,54 @@ router.get("/:id", async (req, res) => {
 
 //Get latest Products or By search using (product name - and category)
 router.get("/", async (req, res) => {
-  const TypeOfSearch = req.query.type;
-  const valueOfSearch = req.query.value;
-  if (TypeOfSearch === "productname") {
-    let posts = await Post.find({ $text: { $search: valueOfSearch } });
+  const searchText = req.query.searchText;
+  const categoriesArray = req.query.categoriesArray;
+  if (searchText && !categoriesArray) {
+    let posts = await Post.find({ $text: { $search: searchText } });
     posts = posts.map(p => p._id);
     if (posts.length === 0)
       return res.status(400).json({ message: "No Products with such name" });
     const totalNumOfProducts = await Product.countDocuments({ post: posts });
-    const product = await Product.find({ post: posts }).populate({
+    const products = await Product.find({ post: posts }).populate({
       path: "post",
-      select: "_id title body authorKid attachedFiles"
+      select: "_id title body authorKid attachedFiles category"
     });
-    res.send({ product, totalNumOfProducts });
-  } else if (TypeOfSearch === "category") {
-    // search by category
+    res.send({ products, totalNumOfProducts });
+  } else if (categoriesArray && !searchText) {
+    let posts = await Post.find({
+      category: categoriesArray
+    });
+    posts = posts.map(p => p._id);
+    if (posts.length === 0)
+      return res
+        .status(400)
+        .json({ message: "No Products within such category/categories" });
+    const totalNumOfProducts = await Product.countDocuments({ post: posts });
+    const products = await Product.find({ post: posts }).populate({
+      path: "post",
+      select: "_id title body authorKid attachedFiles category"
+    });
+    res.send({ products, totalNumOfProducts });
+  } else if (categoriesArray && searchText) {
+    let posts = await Post.find({
+      $and: [
+        { $text: { $search: searchText } },
+        {
+          category: categoriesArray
+        }
+      ]
+    });
+    posts = posts.map(p => p._id);
+    if (posts.length === 0)
+      return res
+        .status(400)
+        .json({ message: "No Products with such name or category" });
+    const totalNumOfProducts = await Product.countDocuments({ post: posts });
+    const products = await Product.find({ post: posts }).populate({
+      path: "post",
+      select: "_id title body authorKid attachedFiles category"
+    });
+    res.send({ products, totalNumOfProducts });
   } else {
     const totalNumOfProducts = await Product.countDocuments();
     const products = await Product.find({})

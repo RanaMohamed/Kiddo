@@ -9,8 +9,8 @@ const Product = require("../models/product");
 //Add Post
 router.post(
   "/",
-  // authenticationMiddleware,
-  // uploadMiddleware.array("uploadedFiles", 10),
+  authenticationMiddleware,
+  uploadMiddleware.array("uploadedFiles", 10),
   async (req, res) => {
     const { title, body, isProduct, price, category } = req.body;
     const post = new Post({
@@ -21,8 +21,7 @@ router.post(
       isApproved: false,
       category
     });
-    //  post.authorKid = req.user._id;
-    post.authorKid = "5ede83ab8a74fa441461bb56";
+    post.authorKid = req.user._id;
     if (req.files) {
       req.files.forEach(f => {
         post.attachedFiles.push(f.path);
@@ -48,6 +47,10 @@ router.get("/approved", async (req, res) => {
     .populate({
       path: "authorKid",
       select: "_id username"
+    })
+    .populate({
+      path: "category",
+      select: "_id title"
     });
   res.send({ Posts, totalNumOfPosts });
 });
@@ -62,16 +65,25 @@ router.get("/unapproved", async (req, res) => {
     .populate({
       path: "authorKid",
       select: "_id username"
+    })
+    .populate({
+      path: "category",
+      select: "_id title"
     });
   res.send({ Posts, totalNumOfPosts });
 });
 
 //get Post By Id
 router.get("/:id", async (req, res) => {
-  const post = await Post.findById(req.params.id).populate({
-    path: "authorKid",
-    select: "_id username"
-  });
+  const post = await Post.findById(req.params.id)
+    .populate({
+      path: "authorKid",
+      select: "_id username"
+    })
+    .populate({
+      path: "category",
+      select: "_id title"
+    });
   res.json({ post });
 });
 
@@ -89,6 +101,10 @@ router.get("/kid/:kidId", authenticationMiddleware, async (req, res) => {
     .populate({
       path: "authorKid",
       select: "_id username"
+    })
+    .populate({
+      path: "category",
+      select: "_id title"
     });
   res.status(200).json({
     kidPosts,
