@@ -31,7 +31,6 @@ router.post(
 			const product = new Product({ post: post._id, price });
 			await product.save();
 		}
-
 		await post.save();
 		res.status(201).json({ post, message: 'Post added successfully' });
 	}

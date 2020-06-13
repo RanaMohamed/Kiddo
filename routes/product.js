@@ -5,6 +5,7 @@ const { body } = require('express-validator');
 
 const Product = require('../models/product');
 const Feedback = require('../models/feedback');
+const Post = require('../models/Post');
 
 const validateRequest = require('../middlewares/validateRequest');
 const authenticate = require('../middlewares/authentication');
@@ -79,9 +80,39 @@ router.post(
 	}
 );
 
+//Get Product by Id
 router.get('/:id', async (req, res) => {
 	const product = await Product.findById(req.params.id).populate('feedbacks');
 	res.status(201).json({ product, message: 'Product retrevied successfully' });
+});
+
+//Get latest Products or By search using (product name - and category)
+router.get('/', async (req, res) => {
+	const TypeOfSearch = req.query.type;
+	const valueOfSearch = req.query.value;
+	if (TypeOfSearch === 'productname') {
+		const post = await Post.findOne({ $text: { $search: valueOfSearch } });
+		if (!post)
+			return res.status(400).json({ message: 'No Product with such name' });
+		const product = await Product.findOne({ post: post._id }).populate({
+			path: 'post',
+			select: '_id title body autherKid attachedFiles',
+		});
+		res.send({ product, totalNumOfProducts: 1 });
+	} else if (TypeOfSearch === 'category') {
+		// search by category
+	} else {
+		const totalNumOfProducts = await Product.countDocuments();
+		const products = await Product.find({})
+			.sort({ _id: -1 })
+			.skip((parseInt(req.query.pageNum) - 1) * parseInt(req.query.size))
+			.limit(parseInt(req.query.size))
+			.populate({
+				path: 'post',
+				select: '_id title body autherKid attachedFiles',
+			});
+		res.send({ products, totalNumOfProducts });
+	}
 });
 
 module.exports = router;
