@@ -11,7 +11,14 @@ const Post = require("../models/post");
 const { login } = require("../helpers/helper");
 
 router.post("/register", async (req, res) => {
-  const { username, password, email, dateOfBirth, experience } = req.body;
+  const {
+    username,
+    password,
+    email,
+    dateOfBirth,
+    experience,
+    categories,
+  } = req.body;
 
   const supporter = new Supporter({
     username,
@@ -19,8 +26,9 @@ router.post("/register", async (req, res) => {
     email,
     dateOfBirth,
     experience,
+    categories,
   });
-  supporter.categories = "5ee61856095c2b48d8bd8ef4";
+  // supporter.categories = "5ee61856095c2b48d8bd8ef4";
 
   await supporter.save();
   const token = await supporter.generateToken();
@@ -48,6 +56,12 @@ router.post("/approvePost/:postId", authenticate, async (req, res) => {
   post.isApproved = true;
   await post.save();
   res.json({ message: "Post approved Successfully", post });
+});
+
+//get Supporters
+router.get("/", authenticate, async (req, res) => {
+  const supporters = await Supporter.find({});
+  res.send(supporters);
 });
 
 module.exports = router;
