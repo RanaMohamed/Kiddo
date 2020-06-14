@@ -18,6 +18,7 @@ const schema = new mongoose.Schema(
     },
     authorKid: {
       type: mongoose.Schema.Types.ObjectId,
+      index: true,
       ref: "Kid",
       required: [true, "Author kid is required"],
     },
@@ -46,6 +47,7 @@ schema.virtual("likes", {
   foreignField: "post",
   justOne: false,
 });
+schema.index({ title: "text" });
 
 const Post = mongoose.model("Post", schema);
 

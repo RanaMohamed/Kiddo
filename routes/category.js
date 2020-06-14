@@ -14,7 +14,7 @@ router.post("/", uploadMiddleware.single("image"), async (req, res) => {
   const category = new Category({
     title,
     description,
-    image
+    image,
   });
   await category.save();
   res.status(201).json({ category, message: "category added successfully" });

@@ -3,6 +3,7 @@ require("dotenv").config();
 const { dbUri } = require("./config/db");
 
 const mongoose = require("mongoose");
+
 mongoose
   .connect(dbUri, {
     useNewUrlParser: true,
@@ -10,4 +11,5 @@ mongoose
     useCreateIndex: true,
   })
   .then(() => console.log(`DB Connected Successfully`))
+
   .catch((err) => console.error(err));
