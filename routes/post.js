@@ -23,7 +23,7 @@ router.post(
       category,
     });
     post.authorKid = req.user._id;
-    post.category = "5ee61856095c2b48d8bd8ef4";
+    // post.category = "5ee61856095c2b48d8bd8ef4";
     if (req.files) {
       req.files.forEach((f) => {
         post.attachedFiles.push(f.path);

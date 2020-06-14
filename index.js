@@ -17,6 +17,7 @@ const postRouter = require("./routes/post");
 const commentRouter = require("./routes/comment");
 const productRouter = require("./routes/product");
 const categoryRouter = require("./routes/category");
+const usersRouter = require("./routes/user");
 const stripe = require("./helpers/stripe");
 
 app.use(cors());
@@ -46,6 +47,7 @@ app.use(["/post", "/posts"], postRouter);
 app.use(["/comment", "/comments"], commentRouter);
 app.use(["/product", "/products"], productRouter);
 app.use(["/category", "/categories"], categoryRouter);
+app.use("/user", usersRouter);
 
 app.use(function (req, res, next) {
   res.status(404).send("Sorry can't find that!");
