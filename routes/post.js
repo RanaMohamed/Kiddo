@@ -178,7 +178,7 @@ router.post("/unlike/:id", authenticationMiddleware, async (req, res) => {
   res.json({ message: "Post Unliked Successfully" });
 });
 
-//Search By Title
+//Search
 router.post("/search", async (req, res) => {
   try {
     const kids = await Kid.find({
