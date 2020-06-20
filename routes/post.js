@@ -90,7 +90,7 @@ router.get('/:id', async (req, res) => {
 });
 
 //get Posts of specific Kid
-router.get('/kid/:kidId', authenticationMiddleware, async (req, res) => {
+router.get('/kid/:kidId', async (req, res) => {
 	const totalNumOfPosts = await Post.countDocuments({
 		authorKid: req.params.kidId,
 	});
@@ -108,6 +108,14 @@ router.get('/kid/:kidId', authenticationMiddleware, async (req, res) => {
 			path: 'category',
 			select: '_id title',
 		})
+		.populate({
+			path: 'comments',
+			options: {
+				sort: { updatedAt: -1 },
+				limit: 2,
+			},
+		})
+		.populate('commentsTotal')
 		.populate('likes');
 	res.status(200).json({
 		kidPosts,
