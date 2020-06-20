@@ -11,7 +11,7 @@ const Kid = require('../models/kid');
 router.post(
 	'/',
 	authenticationMiddleware,
-	uploadMiddleware.array('uploadedFiles', 10),
+	uploadMiddleware.array('attachedFiles', 10),
 	async (req, res) => {
 		const { title, body, isProduct, price, category } = req.body;
 		const post = new Post({
@@ -127,7 +127,7 @@ router.get('/kid/:kidId', async (req, res) => {
 router.patch(
 	'/:id',
 	authenticationMiddleware,
-	uploadMiddleware.array('uploadedFiles', 10),
+	uploadMiddleware.array('attachedFiles', 10),
 	async (req, res) => {
 		const post = await Post.findById(req.params.id);
 		Object.keys(req.body).map((key) => (post[key] = req.body[key]));
