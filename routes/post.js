@@ -11,7 +11,7 @@ const Kid = require('../models/kid');
 router.post(
 	'/',
 	authenticationMiddleware,
-	uploadMiddleware.array('uploadedFiles', 10),
+	uploadMiddleware.array('attachedFiles', 10),
 	async (req, res) => {
 		const { title, body, isProduct, price, category } = req.body;
 		const post = new Post({
@@ -90,7 +90,7 @@ router.get('/:id', async (req, res) => {
 });
 
 //get Posts of specific Kid
-router.get('/kid/:kidId', authenticationMiddleware, async (req, res) => {
+router.get('/kid/:kidId', async (req, res) => {
 	const totalNumOfPosts = await Post.countDocuments({
 		authorKid: req.params.kidId,
 	});
@@ -108,6 +108,14 @@ router.get('/kid/:kidId', authenticationMiddleware, async (req, res) => {
 			path: 'category',
 			select: '_id title',
 		})
+		.populate({
+			path: 'comments',
+			options: {
+				sort: { updatedAt: -1 },
+				limit: 2,
+			},
+		})
+		.populate('commentsTotal')
 		.populate('likes');
 	res.status(200).json({
 		kidPosts,
@@ -119,7 +127,7 @@ router.get('/kid/:kidId', authenticationMiddleware, async (req, res) => {
 router.patch(
 	'/:id',
 	authenticationMiddleware,
-	uploadMiddleware.array('uploadedFiles', 10),
+	uploadMiddleware.array('attachedFiles', 10),
 	async (req, res) => {
 		const post = await Post.findById(req.params.id);
 		Object.keys(req.body).map((key) => (post[key] = req.body[key]));

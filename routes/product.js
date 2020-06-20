@@ -34,7 +34,7 @@ router.post("/buy/:id", authenticate, authorize("Buyer"), async (req, res) => {
     from: process.env.USER,
     to: req.user.email,
     subject: "Purchase",
-    text: "You Bought this product"
+    text: "You Bought this product",
   });
 
   res.status(201).json({ product, message: "Product bought successfully" });
@@ -42,14 +42,7 @@ router.post("/buy/:id", authenticate, authorize("Buyer"), async (req, res) => {
 
 router.post(
   "/rate/:id",
-  validateRequest([
-    body("value")
-      .exists()
-      .withMessage("Value is required"),
-    body("text")
-      .exists()
-      .withMessage("Text is required")
-  ]),
+  validateRequest([body("value").exists().withMessage("Value is required")]),
   authenticate,
   authorize("Buyer"),
   async (req, res) => {
@@ -58,13 +51,14 @@ router.post(
     const product = await Product.findById(req.params.id).populate("feedbacks");
 
     if (!product) return res.status(400).json({ message: "Product not found" });
-
+    // console.log(product);
     const index = product.buyer.indexOf(req.user._id);
+
     if (index === -1)
       return res.status(400).json({ message: "You didn't buy this product" });
 
     const isRated = product.feedbacks.some(
-      feedback => feedback.user.toString() === req.user._id.toString()
+      (feedback) => feedback.user.toString() === req.user._id.toString()
     );
     if (isRated)
       return res
@@ -75,11 +69,16 @@ router.post(
       product: product._id,
       user: req.user._id,
       value: value,
-      text: text
+      text: text,
     });
     await feedback.save();
+    const productPopulated = await Product.findById(req.params.id).populate(
+      "feedbacks"
+    );
 
-    res.status(201).json({ message: "Product rated successfully", product });
+    res
+      .status(201)
+      .json({ message: "Product rated successfully", productPopulated });
   }
 );
 
@@ -95,20 +94,20 @@ router.get("/", async (req, res) => {
   const categoriesArray = req.query.categoriesArray;
   if (searchText && !categoriesArray) {
     let posts = await Post.find({ $text: { $search: searchText } });
-    posts = posts.map(p => p._id);
+    posts = posts.map((p) => p._id);
     if (posts.length === 0)
       return res.status(400).json({ message: "No Products with such name" });
     const totalNumOfProducts = await Product.countDocuments({ post: posts });
     const products = await Product.find({ post: posts }).populate({
       path: "post",
-      select: "_id title body authorKid attachedFiles category"
+      select: "_id title body authorKid attachedFiles category",
     });
     res.send({ products, totalNumOfProducts });
   } else if (categoriesArray && !searchText) {
     let posts = await Post.find({
-      category: categoriesArray
+      category: categoriesArray,
     });
-    posts = posts.map(p => p._id);
+    posts = posts.map((p) => p._id);
     if (posts.length === 0)
       return res
         .status(400)
@@ -116,7 +115,7 @@ router.get("/", async (req, res) => {
     const totalNumOfProducts = await Product.countDocuments({ post: posts });
     const products = await Product.find({ post: posts }).populate({
       path: "post",
-      select: "_id title body authorKid attachedFiles category"
+      select: "_id title body authorKid attachedFiles category",
     });
     res.send({ products, totalNumOfProducts });
   } else if (categoriesArray && searchText) {
@@ -124,11 +123,11 @@ router.get("/", async (req, res) => {
       $and: [
         { $text: { $search: searchText } },
         {
-          category: categoriesArray
-        }
-      ]
+          category: categoriesArray,
+        },
+      ],
     });
-    posts = posts.map(p => p._id);
+    posts = posts.map((p) => p._id);
     if (posts.length === 0)
       return res
         .status(400)
@@ -136,7 +135,7 @@ router.get("/", async (req, res) => {
     const totalNumOfProducts = await Product.countDocuments({ post: posts });
     const products = await Product.find({ post: posts }).populate({
       path: "post",
-      select: "_id title body authorKid attachedFiles category"
+      select: "_id title body authorKid attachedFiles category",
     });
     res.send({ products, totalNumOfProducts });
   } else {
@@ -147,7 +146,7 @@ router.get("/", async (req, res) => {
       .limit(parseInt(req.query.size))
       .populate({
         path: "post",
-        select: "_id title body authorKid attachedFiles"
+        select: "_id title body authorKid attachedFiles",
       });
     res.send({ products, totalNumOfProducts });
   }
