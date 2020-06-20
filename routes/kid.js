@@ -72,4 +72,12 @@ router.post('/unfollowCategory/:categoryId', authenticate, async (req, res) => {
 	res.json({ message: 'Category Unfollowed Successfully' });
 });
 
+router.get('/:id', async (req, res) => {
+	const kid = await Kid.findById(req.params.id).populate('categories');
+
+	if (!kid) return res.status(400).json({ message: "User Doesn't Exist" });
+
+	res.json({ user: kid });
+});
+
 module.exports = router;

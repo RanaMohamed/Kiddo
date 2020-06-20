@@ -4,7 +4,7 @@ const _ = require('lodash');
 //COMMENT Schema
 const commentSchema = new mongoose.Schema(
 	{
-		text: String,
+		text: { type: String, required: [true, 'Comment body is required'] },
 		user: {
 			type: mongoose.Schema.Types.ObjectId,
 			required: true,
