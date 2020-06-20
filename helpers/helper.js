@@ -21,5 +21,5 @@ module.exports.login = (model) => async (req, res) => {
 		});
 
 	const token = await user.generateToken();
-	res.json({ user, token });
+	res.json({ user, token, type: model.modelName });
 };
