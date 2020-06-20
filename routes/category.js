@@ -4,7 +4,7 @@ const uploadMiddleware = require("../middlewares/upload");
 const Category = require("../models/category");
 
 router.get("/", async (req, res) => {
-  const categories = await Category.find({}).sort({ _id: -1 });
+  const categories = await Category.find({});
   res.status(200).json({ categories });
 });
 
