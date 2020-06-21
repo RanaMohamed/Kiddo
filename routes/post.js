@@ -161,13 +161,13 @@ router.post('/like/:id', authenticationMiddleware, async (req, res) => {
 	);
 	if (isLiked) return res.json({ message: 'You already like this post' });
 
-	await Like.create({
-		postId: req.params.id,
+	const like = await Like.create({
+		post: req.params.id,
 		user: req.user._id,
 		userModel: req.user.type,
 	});
 
-	res.json({ message: 'Post Liked Successfully' });
+	res.json({ message: 'Post Liked Successfully', like });
 });
 
 router.post('/unlike/:id', authenticationMiddleware, async (req, res) => {
@@ -184,7 +184,7 @@ router.post('/unlike/:id', authenticationMiddleware, async (req, res) => {
 
 	await Like.deleteOne({ _id: like._id });
 
-	res.json({ message: 'Post Unliked Successfully' });
+	res.json({ message: 'Post Unliked Successfully', like });
 });
 
 //Search
