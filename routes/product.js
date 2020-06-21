@@ -144,6 +144,7 @@ router.get("/", async (req, res) => {
 			.populate({
 				path: "post",
 				select: "_id title body authorKid attachedFiles",
+				populate: "authorKid likes commentsTotal",
 			})
 			.populate("feedbacks");
 		res.send({ products, totalNumOfProducts });
