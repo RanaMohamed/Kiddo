@@ -1,17 +1,17 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const Post = require('../models/post');
-const authenticationMiddleware = require('../middlewares/authentication');
-const uploadMiddleware = require('../middlewares/upload');
-const Like = require('../models/like');
-const Product = require('../models/product');
-const Kid = require('../models/kid');
+const Post = require("../models/post");
+const authenticationMiddleware = require("../middlewares/authentication");
+const uploadMiddleware = require("../middlewares/upload");
+const Like = require("../models/like");
+const Product = require("../models/product");
+const Kid = require("../models/kid");
 
 //Add Post
 router.post(
-  '/',
+  "/",
   authenticationMiddleware,
-  uploadMiddleware.array('attachedFiles', 10),
+  uploadMiddleware.array("attachedFiles", 10),
   async (req, res) => {
     const { title, body, isProduct, price, category } = req.body;
     const post = new Post({
@@ -35,12 +35,12 @@ router.post(
       await product.save();
     }
     await post.save();
-    res.status(201).json({ post, message: 'Post added successfully' });
+    res.status(201).json({ post, message: "Post added successfully" });
   }
 );
 
 //get latest approved Posts
-router.get('/approved', async (req, res) => {
+router.get("/approved", async (req, res) => {
   const filter = { isApproved: true };
   if (req.query.category) {
     filter.category = req.query.category;
@@ -51,52 +51,53 @@ router.get('/approved', async (req, res) => {
     .skip((parseInt(req.query.pageNum) - 1) * parseInt(req.query.size))
     .limit(parseInt(req.query.size))
     .populate({
-      path: 'authorKid',
-      select: '_id username',
+      path: "authorKid",
+      select: "_id username",
     })
     .populate({
-      path: 'category',
-      select: '_id title',
-    })
-    .populate('commentsTotal')
-    .populate('likes');
+      path: "category",
+      select: "_id title",
+    });
   res.send({ Posts, totalNumOfPosts });
 });
 
 //get latest unApproved Posts
-router.get('/unapproved', async (req, res) => {
+router.get("/unapproved", async (req, res) => {
   const totalNumOfPosts = await Post.countDocuments({ isApproved: false });
   const Posts = await Post.find({ isApproved: false })
     .sort({ _id: -1 })
     .skip((parseInt(req.query.pageNum) - 1) * parseInt(req.query.size))
     .limit(parseInt(req.query.size))
     .populate({
-      path: 'authorKid',
-      select: '_id username',
+      path: "authorKid",
+      select: "_id username",
     })
     .populate({
-      path: 'category',
-      select: '_id title',
+      path: "category",
+      select: "_id title",
     });
   res.send({ Posts, totalNumOfPosts });
 });
 
 //get Post By Id
-router.get('/:id', async (req, res) => {
+router.get("/:id", async (req, res) => {
   const post = await Post.findById(req.params.id)
     .populate({
-      path: 'authorKid',
-      select: '_id username',
+      path: "authorKid",
+      select: "_id username",
     })
     .populate({
-      path: 'category',
-      select: '_id title',
+      path: "category",
+      select: "_id title",
+    })
+    .populate({
+      path: "comments",
     });
   res.json({ post });
 });
 
 //get Posts of specific Kid
-router.get('/kid/:kidId', async (req, res) => {
+router.get("/kid/:kidId", async (req, res) => {
   const totalNumOfPosts = await Post.countDocuments({
     authorKid: req.params.kidId,
   });
@@ -107,22 +108,22 @@ router.get('/kid/:kidId', async (req, res) => {
     .skip((req.query.pageNum - 1) * req.query.size)
     .limit(parseInt(req.query.size))
     .populate({
-      path: 'authorKid',
-      select: '_id username',
+      path: "authorKid",
+      select: "_id username",
     })
     .populate({
-      path: 'category',
-      select: '_id title',
+      path: "category",
+      select: "_id title",
     })
     .populate({
-      path: 'comments',
+      path: "comments",
       options: {
         sort: { updatedAt: -1 },
         limit: 2,
       },
     })
-    .populate('commentsTotal')
-    .populate('likes');
+    .populate("commentsTotal")
+    .populate("likes");
   res.status(200).json({
     kidPosts,
     totalNumOfPosts,
@@ -131,9 +132,9 @@ router.get('/kid/:kidId', async (req, res) => {
 
 //Edit Post
 router.patch(
-  '/:id',
+  "/:id",
   authenticationMiddleware,
-  uploadMiddleware.array('attachedFiles', 10),
+  uploadMiddleware.array("attachedFiles", 10),
   async (req, res) => {
     const post = await Post.findById(req.params.id);
     Object.keys(req.body).map((key) => (post[key] = req.body[key]));
@@ -146,26 +147,26 @@ router.patch(
 
     await post.save();
 
-    res.status(200).json({ message: 'Post edited successfully', post });
+    res.status(200).json({ message: "Post edited successfully", post });
   }
 );
 
 //Delete Post
-router.delete('/:id', authenticationMiddleware, async (req, res) => {
+router.delete("/:id", authenticationMiddleware, async (req, res) => {
   await Post.deleteOne({ _id: req.params.id });
-  res.status(200).json({ message: 'Post deleted successfully' });
+  res.status(200).json({ message: "Post deleted successfully" });
 });
 
-router.post('/like/:id', authenticationMiddleware, async (req, res) => {
+router.post("/like/:id", authenticationMiddleware, async (req, res) => {
   const post = await Post.findById(req.params.id).populate({
-    path: 'likes',
-    populate: { path: 'user' },
+    path: "likes",
+    populate: { path: "user" },
   });
 
   const isLiked = post.likes.some(
     (like) => like.user._id.toString() === req.user._id.toString()
   );
-  if (isLiked) return res.json({ message: 'You already like this post' });
+  if (isLiked) return res.json({ message: "You already like this post" });
 
   const like = await Like.create({
     post: req.params.id,
@@ -173,13 +174,13 @@ router.post('/like/:id', authenticationMiddleware, async (req, res) => {
     userModel: req.user.type,
   });
 
-  res.json({ message: 'Post Liked Successfully', like });
+  res.json({ message: "Post Liked Successfully", like });
 });
 
-router.post('/unlike/:id', authenticationMiddleware, async (req, res) => {
+router.post("/unlike/:id", authenticationMiddleware, async (req, res) => {
   const post = await Post.findById(req.params.id).populate({
-    path: 'likes',
-    populate: { path: 'user' },
+    path: "likes",
+    populate: { path: "user" },
   });
 
   const like = post.likes.find(
@@ -190,11 +191,11 @@ router.post('/unlike/:id', authenticationMiddleware, async (req, res) => {
 
   await Like.deleteOne({ _id: like._id });
 
-  res.json({ message: 'Post Unliked Successfully', like });
+  res.json({ message: "Post Unliked Successfully", like });
 });
 
 //Search
-router.post('/search', async (req, res) => {
+router.post("/search", async (req, res) => {
   try {
     const kids = await Kid.find({
       $text: {
@@ -212,7 +213,7 @@ router.post('/search', async (req, res) => {
         },
       ],
     }).populate({
-      path: 'authorKid',
+      path: "authorKid",
     });
     if (posts) {
       res.send(posts);
