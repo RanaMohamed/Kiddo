@@ -19,6 +19,8 @@ const productRouter = require('./routes/product');
 const categoryRouter = require('./routes/category');
 const usersRouter = require('./routes/user');
 const stripe = require('./helpers/stripe');
+const validateRequest = require('./middlewares/validateRequest');
+const { query } = require('express-validator');
 
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -30,11 +32,11 @@ app.get('/', authenticate, (req, res) => {
 	res.json(req.user);
 });
 
-app.get('/secret', async (req, res) => {
+app.get('/secret', validateRequest([query('amount')]), async (req, res) => {
+	console.log(req.query.amount);
 	const intent = await stripe.paymentIntents.create({
-		amount: 10,
+		amount: req.query.amount,
 		currency: 'usd',
-		// Verify your integration in this guide by including this parameter
 		metadata: { integration_check: 'accept_a_payment' },
 	});
 	res.json({ client_secret: intent.client_secret }); // ... Fetch or create the PaymentIntent
