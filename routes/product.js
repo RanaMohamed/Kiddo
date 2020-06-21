@@ -16,8 +16,8 @@ const transport = require("../helpers/mail");
 router.post("/buy/:id", authenticate, authorize("Buyer"), async (req, res) => {
   // Todo: Check Payment Info
   // pi_1GtUB8GBToZL71CcCsHNlbqw;
-  const { paymentIntentId } = req.body;
-  if (!paymentIntentId) {
+  const { payment } = req.body.payment;
+  if (!payment) {
     res.status(402).json({ message: "Failed to buy product" });
   }
   const product = await Product.findById(req.params.id);
@@ -147,7 +147,8 @@ router.get("/", async (req, res) => {
       .populate({
         path: "post",
         select: "_id title body authorKid attachedFiles",
-      });
+      })
+      .populate("feedbacks");
     res.send({ products, totalNumOfProducts });
   }
 });
