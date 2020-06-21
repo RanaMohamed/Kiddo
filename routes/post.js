@@ -41,8 +41,12 @@ router.post(
 
 //get latest approved Posts
 router.get("/approved", async (req, res) => {
-  const totalNumOfPosts = await Post.countDocuments({ isApproved: true });
-  const Posts = await Post.find({ isApproved: true })
+  const filter = { isApproved: true };
+  if (req.query.category) {
+    filter.category = req.query.category;
+  }
+  const totalNumOfPosts = await Post.countDocuments(filter);
+  const Posts = await Post.find(filter)
     .sort({ _id: -1 })
     .skip((parseInt(req.query.pageNum) - 1) * parseInt(req.query.size))
     .limit(parseInt(req.query.size))
@@ -86,6 +90,8 @@ router.get("/:id", async (req, res) => {
       path: "category",
       select: "_id title",
     })
+    .populate("commentsTotal")
+    .populate("likes")
     .populate({
       path: "comments",
     });
@@ -113,10 +119,6 @@ router.get("/kid/:kidId", async (req, res) => {
     })
     .populate({
       path: "comments",
-      options: {
-        sort: { updatedAt: -1 },
-        limit: 2,
-      },
     })
     .populate("commentsTotal")
     .populate("likes");
