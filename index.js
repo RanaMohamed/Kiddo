@@ -33,8 +33,9 @@ app.get("/", authenticate, (req, res) => {
 });
 
 app.get("/secret", validateRequest([query("amount")]), async (req, res) => {
+	const amount = req.query.amount === 0 ? 10 : req.query.amount;
 	const intent = await stripe.paymentIntents.create({
-		amount: req.query.amount || 10,
+		amount: amount,
 		currency: "usd",
 		metadata: { integration_check: "accept_a_payment" },
 	});
