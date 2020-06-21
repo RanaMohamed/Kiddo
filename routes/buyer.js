@@ -47,23 +47,28 @@ router.post(
 );
 
 //get latest Buyer’s bought products
-router.get("/products", authenticate, authorize("Buyer"), async (req, res) => {
-  const totalNumOfProducts = await Product.countDocuments({
-    buyer: req.user._id
-  });
-  if (totalNumOfProducts === 0)
-    return res.status(400).json({ message: "You didn't buy any product" });
-
-  const Products = await Product.find({ buyer: req.user._id })
-    .sort({ _id: -1 })
-    .skip((parseInt(req.query.pageNum) - 1) * parseInt(req.query.size))
-    .limit(parseInt(req.query.size))
-    .populate({
-      path: "post",
-      select: "_id title body authorKid attachedFiles"
+router.get(
+  "/products:id",
+  authenticate,
+  authorize("Buyer"),
+  async (req, res) => {
+    const totalNumOfProducts = await Product.countDocuments({
+      buyer: req.params.id
     });
-  res.send({ Products, totalNumOfProducts });
-});
+    if (totalNumOfProducts === 0)
+      return res.status(400).json({ message: "You didn't buy any product" });
+
+    const Products = await Product.find({ buyer: req.params.id })
+      .sort({ _id: -1 })
+      .skip((parseInt(req.query.pageNum) - 1) * parseInt(req.query.size))
+      .limit(parseInt(req.query.size))
+      .populate({
+        path: "post",
+        select: "_id title body authorKid attachedFiles"
+      });
+    res.send({ Products, totalNumOfProducts });
+  }
+);
 
 //get Buyer by id
 router.get("/:id", async (req, res) => {
