@@ -9,6 +9,7 @@ const Kid = require("../models/kid");
 
 //Add Post
 router.post(
+<<<<<<< HEAD
   "/",
   authenticationMiddleware,
   uploadMiddleware.array("attachedFiles", 10),
@@ -37,6 +38,36 @@ router.post(
     await post.save();
     res.status(201).json({ post, message: "Post added successfully" });
   }
+=======
+	'/',
+	authenticationMiddleware,
+	uploadMiddleware.array('attachedFiles', 10),
+	async (req, res) => {
+		const { title, body, isProduct, price, category } = req.body;
+		const post = new Post({
+			title,
+			body,
+			likes: [],
+			comments: [],
+			isApproved: false,
+			category,
+		});
+		post.authorKid = req.user._id;
+		// post.category = "5ee61856095c2b48d8bd8ef4";
+		if (req.files) {
+			req.files.forEach((f) => {
+				post.attachedFiles.push(f.path);
+			});
+		}
+
+		if (isProduct) {
+			const product = new Product({ post: post._id, price });
+			await product.save();
+		}
+		await post.save();
+		res.status(201).json({ post, message: 'Post added successfully' });
+	}
+>>>>>>> bd291361e8323fa67ac6383b49ad64b6e0612004
 );
 
 //get latest approved Posts
@@ -128,6 +159,7 @@ router.get("/kid/:kidId", async (req, res) => {
 
 //Edit Post
 router.patch(
+<<<<<<< HEAD
   "/:id",
   authenticationMiddleware,
   uploadMiddleware.array("uploadedFiles", 10),
@@ -145,6 +177,25 @@ router.patch(
 
     res.status(200).json({ message: "Post edited successfully", post });
   }
+=======
+	'/:id',
+	authenticationMiddleware,
+	uploadMiddleware.array('attachedFiles', 10),
+	async (req, res) => {
+		const post = await Post.findById(req.params.id);
+		Object.keys(req.body).map((key) => (post[key] = req.body[key]));
+		if (req.files) {
+			post.attachedFiles = [];
+			req.files.forEach((f) => {
+				post.attachedFiles.push(f.path);
+			});
+		}
+
+		await post.save();
+
+		res.status(200).json({ message: 'Post edited successfully', post });
+	}
+>>>>>>> bd291361e8323fa67ac6383b49ad64b6e0612004
 );
 
 //Delete Post
@@ -164,6 +215,7 @@ router.post("/like/:id", authenticationMiddleware, async (req, res) => {
   );
   if (isLiked) return res.json({ message: "You already like this post" });
 
+<<<<<<< HEAD
   await Like.create({
     postId: req.params.id,
     user: req.user._id,
@@ -171,6 +223,15 @@ router.post("/like/:id", authenticationMiddleware, async (req, res) => {
   });
 
   res.json({ message: "Post Liked Successfully" });
+=======
+	const like = await Like.create({
+		post: req.params.id,
+		user: req.user._id,
+		userModel: req.user.type,
+	});
+
+	res.json({ message: 'Post Liked Successfully', like });
+>>>>>>> bd291361e8323fa67ac6383b49ad64b6e0612004
 });
 
 router.post("/unlike/:id", authenticationMiddleware, async (req, res) => {
@@ -187,7 +248,11 @@ router.post("/unlike/:id", authenticationMiddleware, async (req, res) => {
 
   await Like.deleteOne({ _id: like._id });
 
+<<<<<<< HEAD
   res.json({ message: "Post Unliked Successfully" });
+=======
+	res.json({ message: 'Post Unliked Successfully', like });
+>>>>>>> bd291361e8323fa67ac6383b49ad64b6e0612004
 });
 
 //Search
