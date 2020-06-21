@@ -23,6 +23,7 @@ module.exports = async (req, res, next) => {
 
 		if (!user) return res.status(401).json({ message: 'Unauthorized' });
 		user.type = type;
+		req.userType = type;
 		req.user = user;
 		next();
 	} catch (err) {

@@ -41,8 +41,12 @@ router.post(
 
 //get latest approved Posts
 router.get("/approved", async (req, res) => {
-  const totalNumOfPosts = await Post.countDocuments({ isApproved: true });
-  const Posts = await Post.find({ isApproved: true })
+  const filter = { isApproved: true };
+  if (req.query.category) {
+    filter.category = req.query.category;
+  }
+  const totalNumOfPosts = await Post.countDocuments(filter);
+  const Posts = await Post.find(filter)
     .sort({ _id: -1 })
     .skip((parseInt(req.query.pageNum) - 1) * parseInt(req.query.size))
     .limit(parseInt(req.query.size))
@@ -53,7 +57,9 @@ router.get("/approved", async (req, res) => {
     .populate({
       path: "category",
       select: "_id title",
-    });
+    })
+    .populate("commentsTotal")
+    .populate("likes");
   res.send({ Posts, totalNumOfPosts });
 });
 
@@ -161,13 +167,13 @@ router.post("/like/:id", authenticationMiddleware, async (req, res) => {
   );
   if (isLiked) return res.json({ message: "You already like this post" });
 
-  await Like.create({
-    postId: req.params.id,
+  const like = await Like.create({
+    post: req.params.id,
     user: req.user._id,
     userModel: req.user.type,
   });
 
-  res.json({ message: "Post Liked Successfully" });
+  res.json({ message: "Post Liked Successfully", like });
 });
 
 router.post("/unlike/:id", authenticationMiddleware, async (req, res) => {
@@ -184,7 +190,7 @@ router.post("/unlike/:id", authenticationMiddleware, async (req, res) => {
 
   await Like.deleteOne({ _id: like._id });
 
-  res.json({ message: "Post Unliked Successfully" });
+  res.json({ message: "Post Unliked Successfully", like });
 });
 
 //Search
