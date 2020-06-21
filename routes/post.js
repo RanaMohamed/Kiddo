@@ -20,12 +20,12 @@ router.post(
       likes: [],
       comments: [],
       isApproved: false,
-      category
+      category,
     });
     post.authorKid = req.user._id;
     // post.category = "5ee61856095c2b48d8bd8ef4";
     if (req.files) {
-      req.files.forEach(f => {
+      req.files.forEach((f) => {
         post.attachedFiles.push(f.path);
       });
     }
@@ -52,11 +52,11 @@ router.get("/approved", async (req, res) => {
     .limit(parseInt(req.query.size))
     .populate({
       path: "authorKid",
-      select: "_id username"
+      select: "_id username",
     })
     .populate({
       path: "category",
-      select: "_id title"
+      select: "_id title",
     });
   res.send({ Posts, totalNumOfPosts });
 });
@@ -70,11 +70,11 @@ router.get("/unapproved", async (req, res) => {
     .limit(parseInt(req.query.size))
     .populate({
       path: "authorKid",
-      select: "_id username"
+      select: "_id username",
     })
     .populate({
       path: "category",
-      select: "_id title"
+      select: "_id title",
     });
   res.send({ Posts, totalNumOfPosts });
 });
@@ -84,16 +84,16 @@ router.get("/:id", async (req, res) => {
   const post = await Post.findById(req.params.id)
     .populate({
       path: "authorKid",
-      select: "_id username"
+      select: "_id username",
     })
     .populate({
       path: "category",
-      select: "_id title"
+      select: "_id title",
     })
     .populate("commentsTotal")
     .populate("likes")
     .populate({
-      path: "comments"
+      path: "comments",
     });
   res.json({ post });
 });
@@ -101,30 +101,30 @@ router.get("/:id", async (req, res) => {
 //get Posts of specific Kid
 router.get("/kid/:kidId", async (req, res) => {
   const totalNumOfPosts = await Post.countDocuments({
-    authorKid: req.params.kidId
+    authorKid: req.params.kidId,
   });
   const kidPosts = await Post.find({
-    authorKid: req.params.kidId
+    authorKid: req.params.kidId,
   })
     .sort({ updatedAt: -1 })
     .skip((req.query.pageNum - 1) * req.query.size)
     .limit(parseInt(req.query.size))
     .populate({
       path: "authorKid",
-      select: "_id username"
+      select: "_id username",
     })
     .populate({
       path: "category",
-      select: "_id title"
+      select: "_id title",
     })
     .populate({
-      path: "comments"
+      path: "comments",
     })
     .populate("commentsTotal")
     .populate("likes");
   res.status(200).json({
     kidPosts,
-    totalNumOfPosts
+    totalNumOfPosts,
   });
 });
 
@@ -135,10 +135,10 @@ router.patch(
   uploadMiddleware.array("attachedFiles", 10),
   async (req, res) => {
     const post = await Post.findById(req.params.id);
-    Object.keys(req.body).map(key => (post[key] = req.body[key]));
+    Object.keys(req.body).map((key) => (post[key] = req.body[key]));
     if (req.files) {
       post.attachedFiles = [];
-      req.files.forEach(f => {
+      req.files.forEach((f) => {
         post.attachedFiles.push(f.path);
       });
     }
@@ -158,18 +158,18 @@ router.delete("/:id", authenticationMiddleware, async (req, res) => {
 router.post("/like/:id", authenticationMiddleware, async (req, res) => {
   const post = await Post.findById(req.params.id).populate({
     path: "likes",
-    populate: { path: "user" }
+    populate: { path: "user" },
   });
 
   const isLiked = post.likes.some(
-    like => like.user._id.toString() === req.user._id.toString()
+    (like) => like.user._id.toString() === req.user._id.toString()
   );
   if (isLiked) return res.json({ message: "You already like this post" });
 
   const like = await Like.create({
     post: req.params.id,
     user: req.user._id,
-    userModel: req.user.type
+    userModel: req.user.type,
   });
 
   res.json({ message: "Post Liked Successfully", like });
@@ -178,11 +178,11 @@ router.post("/like/:id", authenticationMiddleware, async (req, res) => {
 router.post("/unlike/:id", authenticationMiddleware, async (req, res) => {
   const post = await Post.findById(req.params.id).populate({
     path: "likes",
-    populate: { path: "user" }
+    populate: { path: "user" },
   });
 
   const like = post.likes.find(
-    like => like.user._id.toString() === req.user._id.toString()
+    (like) => like.user._id.toString() === req.user._id.toString()
   );
 
   if (!like) return res.json({ message: "You didn't like this post" });
@@ -197,8 +197,8 @@ router.post("/search", async (req, res) => {
   try {
     const kids = await Kid.find({
       $text: {
-        $search: req.body.query
-      }
+        $search: req.body.query,
+      },
     });
     const posts = await Post.find({
       $and: [
@@ -206,12 +206,12 @@ router.post("/search", async (req, res) => {
         {
           $or: [
             { $text: { $search: req.body.query } },
-            { authorKid: kids.map(kid => kid.id) }
-          ]
-        }
-      ]
+            { authorKid: kids.map((kid) => kid.id) },
+          ],
+        },
+      ],
     }).populate({
-      path: "authorKid"
+      path: "authorKid",
     });
     if (posts) {
       res.send(posts);

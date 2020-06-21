@@ -71,13 +71,11 @@ router.post(
 			text: text,
 		});
 		await feedback.save();
-		const productPopulated = await Product.findById(req.params.id).populate(
-			"feedbacks"
-		);
+		// const productPopulated = await Product.findById(req.params.id).populate(
+		//   "feedbacks"
+		// );
 
-		res
-			.status(201)
-			.json({ message: "Product rated successfully", productPopulated });
+		res.status(201).json({ message: "Product rated successfully", feedback });
 	}
 );
 
