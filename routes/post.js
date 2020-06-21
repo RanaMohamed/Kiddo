@@ -93,11 +93,7 @@ router.get("/:id", async (req, res) => {
     .populate("commentsTotal")
     .populate("likes")
     .populate({
-      path: "comments",
-      options: {
-        sort: { updatedAt: -1 },
-        limit: 2
-      }
+      path: "comments"
     });
   res.json({ post });
 });
@@ -122,11 +118,7 @@ router.get("/kid/:kidId", async (req, res) => {
       select: "_id title"
     })
     .populate({
-      path: "comments",
-      options: {
-        sort: { updatedAt: -1 },
-        limit: 2
-      }
+      path: "comments"
     })
     .populate("commentsTotal")
     .populate("likes");
