@@ -1,11 +1,11 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const Post = require('../models/post');
-const authenticationMiddleware = require('../middlewares/authentication');
-const uploadMiddleware = require('../middlewares/upload');
-const Like = require('../models/like');
-const Product = require('../models/product');
-const Kid = require('../models/kid');
+const Post = require("../models/post");
+const authenticationMiddleware = require("../middlewares/authentication");
+const uploadMiddleware = require("../middlewares/upload");
+const Like = require("../models/like");
+const Product = require("../models/product");
+const Kid = require("../models/kid");
 
 //Add Post
 router.post(
@@ -128,7 +128,6 @@ router.get("/kid/:kidId", async (req, res) => {
 
 //Edit Post
 router.patch(
-<<<<<<< HEAD
   "/:id",
   authenticationMiddleware,
   uploadMiddleware.array("attachedFiles", 10),
@@ -146,34 +145,14 @@ router.patch(
 
     res.status(200).json({ message: "Post edited successfully", post });
   }
-=======
-	'/:id',
-	authenticationMiddleware,
-	uploadMiddleware.array('attachedFiles', 10),
-	async (req, res) => {
-		const post = await Post.findById(req.params.id);
-		Object.keys(req.body).map((key) => (post[key] = req.body[key]));
-		if (req.files) {
-			post.attachedFiles = [];
-			req.files.forEach((f) => {
-				post.attachedFiles.push(f.path);
-			});
-		}
-
-		await post.save();
-
-		res.status(200).json({ message: 'Post edited successfully', post });
-	}
->>>>>>> 0ad3a0b02e972a121079302b46c384e4e069ae68
 );
 
 //Delete Post
-router.delete('/:id', authenticationMiddleware, async (req, res) => {
-	await Post.deleteOne({ _id: req.params.id });
-	res.status(200).json({ message: 'Post deleted successfully' });
+router.delete("/:id", authenticationMiddleware, async (req, res) => {
+  await Post.deleteOne({ _id: req.params.id });
+  res.status(200).json({ message: "Post deleted successfully" });
 });
 
-<<<<<<< HEAD
 router.post("/like/:id", authenticationMiddleware, async (req, res) => {
   const post = await Post.findById(req.params.id).populate({
     path: "likes",
@@ -203,43 +182,11 @@ router.post("/unlike/:id", authenticationMiddleware, async (req, res) => {
   const like = post.likes.find(
     (like) => like.user._id.toString() === req.user._id.toString()
   );
-=======
-router.post('/like/:id', authenticationMiddleware, async (req, res) => {
-	const post = await Post.findById(req.params.id).populate({
-		path: 'likes',
-		populate: { path: 'user' },
-	});
 
-	const isLiked = post.likes.some(
-		(like) => like.user._id.toString() === req.user._id.toString()
-	);
-	if (isLiked) return res.json({ message: 'You already like this post' });
+  if (!like) return res.json({ message: "You didn't like this post" });
 
-	const like = await Like.create({
-		post: req.params.id,
-		user: req.user._id,
-		userModel: req.user.type,
-	});
+  await Like.deleteOne({ _id: like._id });
 
-	res.json({ message: 'Post Liked Successfully', like });
-});
-
-router.post('/unlike/:id', authenticationMiddleware, async (req, res) => {
-	const post = await Post.findById(req.params.id).populate({
-		path: 'likes',
-		populate: { path: 'user' },
-	});
-
-	const like = post.likes.find(
-		(like) => like.user._id.toString() === req.user._id.toString()
-	);
->>>>>>> 0ad3a0b02e972a121079302b46c384e4e069ae68
-
-	if (!like) return res.json({ message: "You didn't like this post" });
-
-	await Like.deleteOne({ _id: like._id });
-
-<<<<<<< HEAD
   res.json({ message: "Post Unliked Successfully", like });
 });
 
@@ -270,38 +217,6 @@ router.post("/search", async (req, res) => {
   } catch (err) {
     console.log(err);
   }
-=======
-	res.json({ message: 'Post Unliked Successfully', like });
-});
-
-//Search
-router.post('/search', async (req, res) => {
-	try {
-		const kids = await Kid.find({
-			$text: {
-				$search: req.body.query,
-			},
-		});
-		const posts = await Post.find({
-			$and: [
-				{ category: req.body.category },
-				{
-					$or: [
-						{ $text: { $search: req.body.query } },
-						{ authorKid: kids.map((kid) => kid.id) },
-					],
-				},
-			],
-		}).populate({
-			path: 'authorKid',
-		});
-		if (posts) {
-			res.send(posts);
-		}
-	} catch (err) {
-		console.log(err);
-	}
->>>>>>> 0ad3a0b02e972a121079302b46c384e4e069ae68
 });
 
 module.exports = router;
