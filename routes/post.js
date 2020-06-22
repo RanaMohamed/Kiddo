@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Post = require("../models/post");
 const authenticationMiddleware = require("../middlewares/authentication");
+const authorize = require("../middlewares/authorize");
 const uploadMiddleware = require("../middlewares/upload");
 const Like = require("../models/like");
 const Product = require("../models/product");
@@ -11,6 +12,7 @@ const Kid = require("../models/kid");
 router.post(
 	"/",
 	authenticationMiddleware,
+	authorize("Kid"),
 	uploadMiddleware.array("attachedFiles", 10),
 	async (req, res) => {
 		const { title, body, isProduct, price, category } = req.body;
