@@ -17,7 +17,7 @@ router.post("/register", async (req, res) => {
     email,
     dateOfBirth,
     experience,
-    categories
+    categories,
   } = req.body;
 
   const supporter = new Supporter({
@@ -26,7 +26,7 @@ router.post("/register", async (req, res) => {
     email,
     dateOfBirth,
     experience,
-    categories
+    categories,
   });
   // supporter.categories = "5ee61856095c2b48d8bd8ef4";
 
@@ -37,19 +37,15 @@ router.post("/register", async (req, res) => {
     message: "Supporter registered successfully",
     supporter,
     token,
-    type: "Supporter"
+    type: "Supporter",
   });
 });
 
 router.post(
   "/login",
   validateRequest([
-    body("username")
-      .exists()
-      .withMessage("Username is required"),
-    body("password")
-      .exists()
-      .withMessage("Password is required")
+    body("username").exists().withMessage("Username is required"),
+    body("password").exists().withMessage("Password is required"),
   ]),
   login(Supporter)
 );
@@ -69,6 +65,16 @@ router.post("/approvePost/:postId", authenticate, async (req, res) => {
 router.get("/", authenticate, async (req, res) => {
   const supporters = await Supporter.find({});
   res.send(supporters);
+});
+
+//get Supporters by Category
+router.get("/supportersCategory", async (req, res) => {
+  const supporters = await Supporter.find({ categories: req.query.category });
+
+  if (!supporters)
+    return res.status(400).json({ message: "No Supporter for this category" });
+
+  res.status(200).json({ supporters });
 });
 
 //get Supporter by id
