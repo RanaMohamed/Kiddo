@@ -104,9 +104,11 @@ router.get("/:id", async (req, res) => {
 router.get("/kid/:kidId", async (req, res) => {
 	const totalNumOfPosts = await Post.countDocuments({
 		authorKid: req.params.kidId,
+		isApproved: true,
 	});
 	const kidPosts = await Post.find({
 		authorKid: req.params.kidId,
+		isApproved: true,
 	})
 		.sort({ updatedAt: -1 })
 		.skip((req.query.pageNum - 1) * req.query.size)
