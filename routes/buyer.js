@@ -6,7 +6,7 @@ const { body } = require("express-validator");
 const validateRequest = require("../middlewares/validateRequest");
 const authenticate = require("../middlewares/authentication");
 const authorize = require("../middlewares/authorize");
-const Buyer = require("../models/Buyer");
+const Buyer = require("../models/buyer");
 const Product = require("../models/product");
 
 const { login } = require("../helpers/helper");
