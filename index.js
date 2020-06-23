@@ -9,6 +9,7 @@ require("./db");
 const { port } = require("./config/config");
 
 const authenticate = require("./middlewares/authentication");
+const authorize = require("./middlewares/authorize");
 
 const kidRouter = require("./routes/kid");
 const supporterRouter = require("./routes/supporter");
@@ -21,6 +22,7 @@ const usersRouter = require("./routes/user");
 const stripe = require("./helpers/stripe");
 const validateRequest = require("./middlewares/validateRequest");
 const { query } = require("express-validator");
+const Product = require("./models/product");
 
 app.use(cors());
 app.use(express.static(path.join(__dirname, "public")));
@@ -32,15 +34,30 @@ app.get("/", authenticate, (req, res) => {
 	res.json(req.user);
 });
 
-app.get("/secret", validateRequest([query("amount")]), async (req, res) => {
-	const amount = req.query.amount === 0 ? 10 : req.query.amount;
-	const intent = await stripe.paymentIntents.create({
-		amount: amount,
-		currency: "usd",
-		metadata: { integration_check: "accept_a_payment" },
-	});
-	res.json({ client_secret: intent.client_secret }); // ... Fetch or create the PaymentIntent
-});
+app.get(
+	"/secret",
+	authenticate,
+	authorize("Buyer"),
+	validateRequest([query("productId")]),
+	async (req, res) => {
+		const product = await Product.findById(req.params.productId);
+		if (!product) return res.status(400).json({ message: "Product not found" });
+
+		const index = product.buyer.indexOf(req.user._id);
+		if (index !== -1)
+			return res
+				.status(400)
+				.json({ message: "You already bought this product" });
+
+		const amount = product.price * 10 === 0 ? 10 : product.price * 10;
+		const intent = await stripe.paymentIntents.create({
+			amount: amount,
+			currency: "usd",
+			metadata: { integration_check: "accept_a_payment" },
+		});
+		res.json({ client_secret: intent.client_secret }); // ... Fetch or create the PaymentIntent
+	}
+);
 
 app.use(["/kid", "/kids"], kidRouter);
 app.use(["/supporter", "/supporters"], supporterRouter);
