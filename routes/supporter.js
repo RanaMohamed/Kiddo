@@ -5,7 +5,7 @@ const { body } = require("express-validator");
 
 const validateRequest = require("../middlewares/validateRequest");
 const authenticate = require("../middlewares/authentication");
-const Supporter = require("../models/Supporter");
+const Supporter = require("../models/supporter");
 const Post = require("../models/post");
 
 const { login } = require("../helpers/helper");
