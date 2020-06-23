@@ -27,8 +27,7 @@ router.post(
 			category,
 		});
 		post.authorKid = req.user._id;
-
-		if (isProduct) {
+		if (isProduct === true) {
 			const product = new Product({ post: post._id, price });
 			await product.save();
 		}
