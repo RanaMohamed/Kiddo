@@ -103,6 +103,9 @@ router.get("/:id", async (req, res) => {
 		.populate("likes")
 		.populate({
 			path: "comments",
+			populate: {
+				path: "user",
+			},
 		});
 	res.json({ post });
 });
@@ -130,6 +133,9 @@ router.get("/kid/:kidId", async (req, res) => {
 		})
 		.populate({
 			path: "comments",
+			populate: {
+				path: "user",
+			},
 			options: {
 				sort: { updatedAt: -1 },
 				limit: 2,
