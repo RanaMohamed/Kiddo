@@ -98,7 +98,6 @@ router.get("/:id", async (req, res) => {
 		})
 		.populate({
 			path: "category",
-			select: "_id title",
 		})
 		.populate("commentsTotal")
 		.populate("likes")
