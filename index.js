@@ -25,7 +25,7 @@ const { query } = require("express-validator");
 const Product = require("./models/product");
 
 app.use(cors());
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "uploads")));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

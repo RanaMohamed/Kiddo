@@ -1,5 +1,7 @@
 const express = require("express");
 const router = express.Router();
+const cloudinary = require("cloudinary");
+
 const Post = require("../models/post");
 const authenticationMiddleware = require("../middlewares/authentication");
 const authorize = require("../middlewares/authorize");
@@ -25,18 +27,22 @@ router.post(
 			category,
 		});
 		post.authorKid = req.user._id;
-		// post.category = "5ee61856095c2b48d8bd8ef4";
-		if (req.files) {
-			req.files.forEach((f) => {
-				post.attachedFiles.push(f.path);
-			});
-		}
 
 		if (isProduct) {
 			const product = new Product({ post: post._id, price });
 			await product.save();
 		}
 		await post.save();
+		if (req.files) {
+			for (const f of req.files) {
+				const result = await cloudinary.v2.uploader.upload(f.path);
+				post.attachedFiles.push(result.secure_url);
+			}
+			// req.files.forEach((f) => {
+			// 	post.attachedFiles.push(f.path);
+			// });
+			await post.save();
+		}
 		res.status(201).json({ post, message: "Post added successfully" });
 	}
 );
