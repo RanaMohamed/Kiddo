@@ -24,9 +24,9 @@
 		"nodemon": "^2.0.4"
 	},
 	"scripts": {
-		"start": "node .",
-		"dev": "nodemon .",
-		"debug": "nodemon --inspect .",
+		"start": "node index.js",
+		"dev": "nodemon index.js",
+		"debug": "nodemon --inspect index.js",
 		"lint": "eslint --init"
 	},
 	"repository": {
