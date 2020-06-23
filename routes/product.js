@@ -93,7 +93,11 @@ router.get("/", async (req, res) => {
 		let posts = await Post.find({ $text: { $search: searchText } });
 		posts = posts.map((p) => p._id);
 		if (posts.length === 0)
-			return res.status(400).json({ message: "No Products with such name" });
+			return res.json({
+				message: "No Products with such name",
+				products: [],
+				totalNumOfProducts: 0,
+			});
 		const totalNumOfProducts = await Product.countDocuments({ post: posts });
 		const products = await Product.find({ post: posts }).populate({
 			path: "post",
@@ -106,9 +110,11 @@ router.get("/", async (req, res) => {
 		});
 		posts = posts.map((p) => p._id);
 		if (posts.length === 0)
-			return res
-				.status(400)
-				.json({ message: "No Products within such category/categories" });
+			return res.json({
+				message: "No Products within such category/categories",
+				products: [],
+				totalNumOfProducts: 0,
+			});
 		const totalNumOfProducts = await Product.countDocuments({ post: posts });
 		const products = await Product.find({ post: posts }).populate({
 			path: "post",
@@ -126,9 +132,11 @@ router.get("/", async (req, res) => {
 		});
 		posts = posts.map((p) => p._id);
 		if (posts.length === 0)
-			return res
-				.status(400)
-				.json({ message: "No Products with such name or category" });
+			return res.json({
+				message: "No Products with such name or category",
+				products: [],
+				totalNumOfProducts: 0,
+			});
 		const totalNumOfProducts = await Product.countDocuments({ post: posts });
 		const products = await Product.find({ post: posts }).populate({
 			path: "post",
