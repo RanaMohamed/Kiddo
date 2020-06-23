@@ -61,11 +61,9 @@ router.get("/approved", async (req, res) => {
 		.limit(parseInt(req.query.size))
 		.populate({
 			path: "authorKid",
-			select: "_id username",
 		})
 		.populate({
 			path: "category",
-			select: "_id title",
 		})
 		.populate("commentsTotal")
 		.populate("likes");
@@ -81,11 +79,9 @@ router.get("/unapproved", async (req, res) => {
 		.limit(parseInt(req.query.size))
 		.populate({
 			path: "authorKid",
-			select: "_id username",
 		})
 		.populate({
 			path: "category",
-			select: "_id title",
 		});
 	res.send({ posts, totalNumOfPosts });
 });
@@ -95,7 +91,6 @@ router.get("/:id", async (req, res) => {
 	const post = await Post.findById(req.params.id)
 		.populate({
 			path: "authorKid",
-			select: "_id username",
 		})
 		.populate({
 			path: "category",
@@ -126,11 +121,9 @@ router.get("/kid/:kidId", async (req, res) => {
 		.limit(parseInt(req.query.size))
 		.populate({
 			path: "authorKid",
-			select: "_id username",
 		})
 		.populate({
 			path: "category",
-			select: "_id title",
 		})
 		.populate({
 			path: "comments",

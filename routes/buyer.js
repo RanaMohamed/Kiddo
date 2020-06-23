@@ -60,7 +60,6 @@ router.get(
 			.limit(parseInt(req.query.size))
 			.populate({
 				path: "post",
-				select: "_id title body authorKid attachedFiles",
 				populate: "commentsTotal authorKid likes",
 			});
 		res.send({ products, totalNumOfProducts });

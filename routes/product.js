@@ -102,7 +102,10 @@ router.get("/", async (req, res) => {
 	const searchText = req.query.searchText;
 	const categoriesArray = req.query.categoriesArray;
 	if (searchText && !categoriesArray) {
-		let posts = await Post.find({ $text: { $search: searchText } });
+		let posts = await Post.find({
+			$text: { $search: searchText },
+			isApproved: true,
+		});
 		posts = posts.map((p) => p._id);
 		if (posts.length === 0)
 			return res.json({
@@ -113,12 +116,12 @@ router.get("/", async (req, res) => {
 		const totalNumOfProducts = await Product.countDocuments({ post: posts });
 		const products = await Product.find({ post: posts }).populate({
 			path: "post",
-			select: "_id title body authorKid attachedFiles category",
 		});
 		res.send({ products, totalNumOfProducts });
 	} else if (categoriesArray && !searchText) {
 		let posts = await Post.find({
 			category: categoriesArray,
+			isApproved: true,
 		});
 		posts = posts.map((p) => p._id);
 		if (posts.length === 0)
@@ -130,13 +133,12 @@ router.get("/", async (req, res) => {
 		const totalNumOfProducts = await Product.countDocuments({ post: posts });
 		const products = await Product.find({ post: posts }).populate({
 			path: "post",
-			select: "_id title body authorKid attachedFiles category",
 		});
 		res.send({ products, totalNumOfProducts });
 	} else if (categoriesArray && searchText) {
 		let posts = await Post.find({
 			$and: [
-				{ $text: { $search: searchText } },
+				{ $text: { $search: searchText }, isApproved: true },
 				{
 					category: categoriesArray,
 				},
@@ -152,18 +154,26 @@ router.get("/", async (req, res) => {
 		const totalNumOfProducts = await Product.countDocuments({ post: posts });
 		const products = await Product.find({ post: posts }).populate({
 			path: "post",
-			select: "_id title body authorKid attachedFiles category",
 		});
 		res.send({ products, totalNumOfProducts });
 	} else {
-		const totalNumOfProducts = await Product.countDocuments();
-		const products = await Product.find({})
+		let posts = await Post.find({ isApproved: true });
+		posts = posts.map((p) => p._id);
+		if (posts.length === 0)
+			return res.json({
+				message: "No Products with such name",
+				products: [],
+				totalNumOfProducts: 0,
+			});
+		const totalNumOfProducts = await Product.countDocuments({
+			post: posts,
+		});
+		const products = await Product.find({ post: posts })
 			.sort({ _id: -1 })
 			.skip((parseInt(req.query.pageNum) - 1) * parseInt(req.query.size))
 			.limit(parseInt(req.query.size))
 			.populate({
 				path: "post",
-				select: "_id title body authorKid attachedFiles",
 				populate: "authorKid likes commentsTotal",
 			})
 			.populate("feedbacks");
