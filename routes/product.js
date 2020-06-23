@@ -19,7 +19,7 @@ router.post("/buy/:id", authenticate, authorize("Buyer"), async (req, res) => {
 	if (!payment) {
 		return res.status(402).json({ message: "Failed to buy product" });
 	}
-	const product = await Product.findById(req.params.id);
+	const product = await Product.findById(req.params.id).populate("post");
 	if (!product) return res.status(400).json({ message: "Product not found" });
 
 	const index = product.buyer.indexOf(req.user._id);
@@ -28,13 +28,25 @@ router.post("/buy/:id", authenticate, authorize("Buyer"), async (req, res) => {
 
 	product.buyer.push(req.user._id);
 	await product.save();
-
-	await transport.sendMail({
-		from: process.env.USER,
-		to: req.user.email,
-		subject: "Purchase",
-		text: "You Bought this product",
-	});
+	if (product.post.attachedFiles) {
+		await transport.sendMail({
+			from: process.env.USER,
+			to: req.user.email,
+			subject: "Purchase",
+			text: "You Bought this product",
+			// html: product.post.attachedFiles
+			// 	.map(
+			// 		(file, index) =>
+			// 			`<a href="${file}" download>File ${index + 1}</a><br>`
+			// 	)
+			// 	.join(" "),
+			attachments: product.post.attachedFiles.map((file, index) => ({
+				filename: `File ${index + 1}.${file.split(".").pop()}`,
+				path: file,
+				cid: file,
+			})),
+		});
+	}
 
 	res.status(201).json({ product, message: "Product bought successfully" });
 });

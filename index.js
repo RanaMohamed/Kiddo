@@ -40,7 +40,7 @@ app.get(
 	authorize("Buyer"),
 	validateRequest([query("productId")]),
 	async (req, res) => {
-		const product = await Product.findById(req.params.productId);
+		const product = await Product.findById(req.query.productId);
 		if (!product) return res.status(400).json({ message: "Product not found" });
 
 		const index = product.buyer.indexOf(req.user._id);
@@ -49,7 +49,8 @@ app.get(
 				.status(400)
 				.json({ message: "You already bought this product" });
 
-		const amount = product.price * 10 === 0 ? 10 : product.price * 10;
+		const amount = product.price * 100 === 0 ? 100 : product.price * 100;
+
 		const intent = await stripe.paymentIntents.create({
 			amount: amount,
 			currency: "usd",

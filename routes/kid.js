@@ -1,16 +1,16 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
-const { body } = require('express-validator');
+const { body } = require("express-validator");
 
-const validateRequest = require('../middlewares/validateRequest');
-const authenticate = require('../middlewares/authentication');
-const Kid = require('../models/kid');
-const transport = require('../helpers/mail');
+const validateRequest = require("../middlewares/validateRequest");
+const authenticate = require("../middlewares/authentication");
+const Kid = require("../models/kid");
+const transport = require("../helpers/mail");
 
-const { login } = require('../helpers/helper');
+const { login } = require("../helpers/helper");
 
-router.post('/register', async (req, res) => {
+router.post("/register", async (req, res) => {
 	const { username, password, parentEmail, dateOfBirth } = req.body;
 	const kid = new Kid({ username, password, parentEmail, dateOfBirth });
 
@@ -20,9 +20,10 @@ router.post('/register', async (req, res) => {
 			{
 				from: process.env.user,
 				to: parentEmail,
-				subject: 'Registration',
-				text:
-					"Your Kid is registered in our website 'Kiddo', if u want you can checkout their profile.",
+				subject: "Registration",
+				html: `<p>Your Kid is registered in our website 'Kiddo', if u want you can checkout their profile.</p>
+					<a href='${"https://kiddo-react.herokuapp.com/kid" + kid._id}'>Profile</a>
+					`,
 			},
 			(err, info) => {
 				if (err) {
@@ -36,44 +37,44 @@ router.post('/register', async (req, res) => {
 	const token = await kid.generateToken();
 
 	res.status(201).json({
-		message: 'Kid registered successfully',
+		message: "Kid registered successfully",
 		kid,
 		token,
-		type: 'Kid',
+		type: "Kid",
 	});
 });
 
 router.post(
-	'/login',
+	"/login",
 	validateRequest([
-		body('username').exists().withMessage('Username is required'),
-		body('password').exists().withMessage('Password is required'),
+		body("username").exists().withMessage("Username is required"),
+		body("password").exists().withMessage("Password is required"),
 	]),
 	login(Kid)
 );
 
-router.post('/followCategory/:categoryId', authenticate, async (req, res) => {
+router.post("/followCategory/:categoryId", authenticate, async (req, res) => {
 	const kid = await Kid.findById(req.user._id);
 	if (kid.categories.indexOf(req.params.categoryId) !== -1)
-		return res.json({ message: 'Category already followed' });
+		return res.json({ message: "Category already followed" });
 
 	kid.categories.push(req.params.categoryId);
 	await kid.save();
-	res.json({ message: 'Category Followed Successfully' });
+	res.json({ message: "Category Followed Successfully" });
 });
 
-router.post('/unfollowCategory/:categoryId', authenticate, async (req, res) => {
+router.post("/unfollowCategory/:categoryId", authenticate, async (req, res) => {
 	const kid = await Kid.findById(req.user._id);
 	if (kid.categories.indexOf(req.params.categoryId) === -1)
-		return res.json({ message: 'You are not following this category' });
+		return res.json({ message: "You are not following this category" });
 
 	kid.categories.pull(req.params.categoryId);
 	await kid.save();
-	res.json({ message: 'Category Unfollowed Successfully' });
+	res.json({ message: "Category Unfollowed Successfully" });
 });
 
-router.get('/:id', async (req, res) => {
-	const kid = await Kid.findById(req.params.id).populate('categories');
+router.get("/:id", async (req, res) => {
+	const kid = await Kid.findById(req.params.id).populate("categories");
 
 	if (!kid) return res.status(400).json({ message: "User Doesn't Exist" });
 
